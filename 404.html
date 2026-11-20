@@ -179,7 +179,7 @@
       // الفلترة هنا ليست تجميلاً: بدونها يمرّر الرابط أي شيء إلى مخطط
       // التطبيق، فيمكن استخدام الصفحة لفتح مسارات لم تُقصد.
       // المسار الفارغ مسموح: هو رابط التطبيق العام (الصفحة الرئيسية).
-      var valid = path === '' || /^(watch|playlist)\/[A-Za-z0-9_-]{1,64}$/.test(path);
+      var valid = path === '' || /^(watch|playlist|himma\/post)\/[A-Za-z0-9_-]{1,64}$/.test(path);
 
       var elLoading = document.getElementById('loading');
       var elOpen = document.getElementById('open');
@@ -194,18 +194,27 @@
       }
 
       var isPlaylist = path.indexOf('playlist/') === 0;
+      var isPost = path.indexOf('himma/post/') === 0;
       elTitle.textContent = isPlaylist
         ? 'افتح قائمة التشغيل'
+        : isPost
+        ? 'افتح المنشور'
         : path
         ? 'افتح الدرس'
         : 'تطبيق Gmube';
       elSubtitle.textContent = isPlaylist
         ? 'قائمة التشغيل تُفتح داخل التطبيق مباشرةً.'
+        : isPost
+        ? 'المنشور يُفتح داخل همّة مباشرةً.'
         : path
         ? 'الدرس يُفتح داخل التطبيق مباشرةً.'
         : 'منصة Gmube التعليمية — تُفتح داخل التطبيق.';
 
-      var appLink = 'gmube://' + path;
+      // همّة تستقبل المنشور معاملاً لا مساراً، لأن تنقّلها الداخلي يعتمد
+      // `initialPostId` — فلا معنى لـ`gmube://himma/post/<id>`.
+      var appLink = isPost
+        ? 'gmube://himma?postId=' + path.slice('himma/post/'.length)
+        : 'gmube://' + path;
       var left = false;
 
       // إذا خرجت الصفحة من الواجهة فالتطبيق فُتح فعلاً — لا داعي لعرض
