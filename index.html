@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#070A0F">
+  <title>فتح في تطبيق Gmube</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%2310B981'/><path d='M19 9.5 12 6 5 9.5l7 3.5 7-3.5z' fill='%2304150F'/><path d='M8 11.5v3.2c0 1.1 1.8 2 4 2s4-.9 4-2v-3.2' stroke='%2304150F' stroke-width='1.6' fill='none' stroke-linecap='round'/></svg>">
+  <style>
+    :root {
+      --bg: #070A0F;
+      --card: #0F151D;
+      --line: rgba(255,255,255,0.08);
+      --text: #EDF2F7;
+      --text2: #9BABBB;
+      --text3: #67788A;
+      --brand: #10B981;
+      --brand2: #34D399;
+      --ink: #04150F;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(120% 90% at 50% 0%, #0C1A16 0%, var(--bg) 55%);
+      color: var(--text);
+      font-family: "Cairo", "Segoe UI", system-ui, -apple-system, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 30px 22px 26px;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+    }
+
+    .mark {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 18px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, var(--brand2), var(--brand));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mark svg { width: 34px; height: 34px; }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 19px;
+      line-height: 1.6;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0;
+      font-size: 13.5px;
+      line-height: 1.9;
+      color: var(--text2);
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      margin-top: 22px;
+      padding: 15px 18px;
+      border: 0;
+      border-radius: 14px;
+      background: var(--brand);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 15.5px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .btn:active { opacity: 0.85; }
+
+    .btn.ghost {
+      margin-top: 10px;
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--text2);
+      font-weight: 500;
+      font-size: 13.5px;
+      padding: 12px 18px;
+    }
+
+    .hint {
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--text3);
+      line-height: 1.9;
+    }
+
+    .hidden { display: none !important; }
+
+    .spin {
+      width: 34px;
+      height: 34px;
+      margin: 0 auto 16px;
+      border: 3px solid rgba(255,255,255,0.12);
+      border-top-color: var(--brand2);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div id="loading">
+      <div class="spin"></div>
+      <h1>جارٍ فتح الدرس…</h1>
+      <p>سيُفتح التطبيق تلقائياً خلال لحظة.</p>
+    </div>
+
+    <div id="open" class="hidden">
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#04150F" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 10L12 5 2 10l10 5 10-5z"/>
+          <path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/>
+        </svg>
+      </div>
+      <h1 id="title">افتح في تطبيق Gmube</h1>
+      <p id="subtitle">الدرس يُفتح داخل التطبيق مباشرةً.</p>
+      <button class="btn" id="openBtn" type="button">فتح التطبيق</button>
+      <button class="btn ghost" id="retryBtn" type="button">لم يُفتح؟ جرّب مرة أخرى</button>
+      <div class="hint">
+        إن لم يكن التطبيق مثبّتاً على هاتفك، ثبّته أولاً ثم أعد فتح هذا الرابط.
+      </div>
+    </div>
+
+    <div id="invalid" class="hidden">
+      <h1>رابط غير صالح</h1>
+      <p>هذا الرابط لا يشير إلى درس أو قائمة تشغيل معروفة.</p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // المسار يُقرأ من مكانين:
+      //  1) ?path=watch/<id>  — الصيغة القديمة، تبقى تعمل فلا ينكسر رابط نُشر.
+      //  2) /gmube-links/watch/<id> — الصيغة الجديدة المقروءة.
+      //     GitHub Pages يخدم 404.html لأي مسار غير موجود، وهذا الملف نسخة من
+      //     هذه الصفحة، فتعمل الصيغتان بنفس الكود بلا خادم.
+      var BASE = '/gmube-links/';
+      var params = new URLSearchParams(window.location.search);
+      var path = (params.get('path') || '').trim();
+
+      if (!path) {
+        var fromUrl = window.location.pathname;
+        if (fromUrl.indexOf(BASE) === 0) fromUrl = fromUrl.slice(BASE.length);
+        path = fromUrl.replace(/^\/+|\/+$/g, '');
+      }
+
+      // نسمح فقط بمسارين نعرفهما وبمعرّف من حروف وأرقام.
+      // الفلترة هنا ليست تجميلاً: بدونها يمرّر الرابط أي شيء إلى مخطط
+      // التطبيق، فيمكن استخدام الصفحة لفتح مسارات لم تُقصد.
+      var valid = /^(watch|playlist)\/[A-Za-z0-9_-]{1,64}$/.test(path);
+
+      var elLoading = document.getElementById('loading');
+      var elOpen = document.getElementById('open');
+      var elInvalid = document.getElementById('invalid');
+      var elTitle = document.getElementById('title');
+      var elSubtitle = document.getElementById('subtitle');
+
+      if (!valid) {
+        elLoading.classList.add('hidden');
+        elInvalid.classList.remove('hidden');
+        return;
+      }
+
+      var isPlaylist = path.indexOf('playlist/') === 0;
+      elTitle.textContent = isPlaylist ? 'افتح قائمة التشغيل' : 'افتح الدرس';
+      elSubtitle.textContent = isPlaylist
+        ? 'قائمة التشغيل تُفتح داخل التطبيق مباشرةً.'
+        : 'الدرس يُفتح داخل التطبيق مباشرةً.';
+
+      var appLink = 'gmube://' + path;
+      var left = false;
+
+      // إذا خرجت الصفحة من الواجهة فالتطبيق فُتح فعلاً — لا داعي لعرض
+      // البدائل. نراقب الاثنين لأن سلوك المتصفحات يختلف.
+      function onLeave() { left = true; }
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) onLeave();
+      });
+      window.addEventListener('blur', onLeave);
+      window.addEventListener('pagehide', onLeave);
+
+      function openApp() {
+        left = false;
+        window.location.href = appLink;
+      }
+
+      document.getElementById('openBtn').addEventListener('click', openApp);
+      document.getElementById('retryBtn').addEventListener('click', openApp);
+
+      // محاولة تلقائية، ثم نكشف البدائل إن بقيت الصفحة ظاهرة.
+      setTimeout(openApp, 250);
+      setTimeout(function () {
+        if (left || document.hidden) return;
+        elLoading.classList.add('hidden');
+        elOpen.classList.remove('hidden');
+      }, 1700);
+    })();
+  </script>
+</body>
+</html>
