@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#070A0F">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Gmube">
+  <meta property="og:title" content="منصة Gmube التعليمية">
+  <meta property="og:description" content="افتح الدرس أو قائمة التشغيل داخل التطبيق مباشرةً.">
   <title>فتح في تطبيق Gmube</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%2310B981'/><path d='M19 9.5 12 6 5 9.5l7 3.5 7-3.5z' fill='%2304150F'/><path d='M8 11.5v3.2c0 1.1 1.8 2 4 2s4-.9 4-2v-3.2' stroke='%2304150F' stroke-width='1.6' fill='none' stroke-linecap='round'/></svg>">
   <style>
@@ -172,7 +176,8 @@
       // نسمح فقط بمسارين نعرفهما وبمعرّف من حروف وأرقام.
       // الفلترة هنا ليست تجميلاً: بدونها يمرّر الرابط أي شيء إلى مخطط
       // التطبيق، فيمكن استخدام الصفحة لفتح مسارات لم تُقصد.
-      var valid = /^(watch|playlist)\/[A-Za-z0-9_-]{1,64}$/.test(path);
+      // المسار الفارغ مسموح: هو رابط التطبيق العام (الصفحة الرئيسية).
+      var valid = path === '' || /^(watch|playlist)\/[A-Za-z0-9_-]{1,64}$/.test(path);
 
       var elLoading = document.getElementById('loading');
       var elOpen = document.getElementById('open');
@@ -187,10 +192,16 @@
       }
 
       var isPlaylist = path.indexOf('playlist/') === 0;
-      elTitle.textContent = isPlaylist ? 'افتح قائمة التشغيل' : 'افتح الدرس';
+      elTitle.textContent = isPlaylist
+        ? 'افتح قائمة التشغيل'
+        : path
+        ? 'افتح الدرس'
+        : 'تطبيق Gmube';
       elSubtitle.textContent = isPlaylist
         ? 'قائمة التشغيل تُفتح داخل التطبيق مباشرةً.'
-        : 'الدرس يُفتح داخل التطبيق مباشرةً.';
+        : path
+        ? 'الدرس يُفتح داخل التطبيق مباشرةً.'
+        : 'منصة Gmube التعليمية — تُفتح داخل التطبيق.';
 
       var appLink = 'gmube://' + path;
       var left = false;
